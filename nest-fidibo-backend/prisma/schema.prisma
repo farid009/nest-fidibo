@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamptz(0)
+  updatedAt DateTime? @default(now()) @map("updated_at") @db.Timestamptz(0)
+  name      String    @db.VarChar(255)
+  email     String    @db.VarChar(255)
+  phone     String    @db.VarChar(225)
+  password  String    @db.VarChar(225)
+  students  Student[]
+
+  @@map("customer")
+}
+
+model Student {
+  id         Int              @id @default(autoincrement())
+  createdAt  DateTime?        @default(now()) @map("created_at") @db.Timestamptz(0)
+  updatedAt  DateTime?        @default(now()) @map("updated_at") @db.Timestamptz(0)
+  name       String           @db.VarChar(255)
+  startTime  DateTime         @map("start_time")
+  customerId Int
+  courseId   Int
+  customer   Customer         @relation(fields: [customerId], references: [id])
+  course     Course           @relation(fields: [courseId], references: [id])
+  answers    QuestionAnswer[]
+
+  @@map("student")
+}
+
+model Course {
+  id          Int       @id @default(autoincrement())
+  createdAt   DateTime? @default(now()) @map("created_at") @db.Timestamptz(0)
+  updatedAt   DateTime? @default(now()) @map("updated_at") @db.Timestamptz(0)
+  name        String    @db.VarChar(255)
+  teacherName String    @map("teacher_name") @db.VarChar(255)
+  students    Student[]
+  modules     Module[]
+
+  @@map("course")
+}
+
+model Module {
+  id        Int        @id @default(autoincrement())
+  createdAt DateTime?  @default(now()) @map("created_at") @db.Timestamptz(0)
+  updatedAt DateTime?  @default(now()) @map("updated_at") @db.Timestamptz(0)
+  name      String     @db.VarChar(255)
+  courseId  Int        @map("course_id")
+  questions Question[]
+  course    Course     @relation(fields: [courseId], references: [id])
+
+  @@map("module")
+}
+
+model Question {
+  id                  Int              @id @default(autoincrement())
+  createdAt           DateTime?        @default(now()) @map("created_at") @db.Timestamptz(0)
+  updatedAt           DateTime?        @default(now()) @map("updated_at") @db.Timestamptz(0)
+  stem                String
+  option1             String
+  option2             String
+  option3             String
+  option4             String
+  correctOptionNumber Int              @map("correct_option_number")
+  explanation         String
+  moduleId            Int              @map("module_id")
+  module              Module           @relation(fields: [moduleId], references: [id])
+  answers             QuestionAnswer[]
+
+  @@map("question")
+}
+
+model QuestionAnswer {
+  id         Int       @id @default(autoincrement())
+  createdAt  DateTime? @default(now()) @map("created_at") @db.Timestamptz(0)
+  updatedAt  DateTime? @default(now()) @map("updated_at") @db.Timestamptz(0)
+  answer     Int
+  status     Boolean
+  studentId  Int       @map("student_id")
+  questionId Int       @map("question_id")
+  student    Student   @relation(fields: [studentId], references: [id])
+  question   Question  @relation(fields: [questionId], references: [id])
+
+  @@map("question_answer")
+}

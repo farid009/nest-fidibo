@@ -1,0 +1,25 @@
+version: '3.3'
+services:
+  fidibo_backend:
+    build:
+      context: .
+    image: fidibo_backend
+    container_name: fidibo_backend
+    hostname: fidibo_backend
+    command: sh run.sh
+    env_file:
+      - .env
+    volumes:
+      - fidibo_data:${STATIC_FILES_PATH}
+    networks:
+      - fidibo_network
+    ports:
+      - ${HTTP_SERVER_PORT}:${HTTP_SERVER_PORT}
+    restart: always
+    
+volumes:
+  fidibo_data:
+
+networks:
+  fidibo_network:
+    external: true
